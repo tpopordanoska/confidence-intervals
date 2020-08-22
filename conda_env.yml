@@ -1,0 +1,16 @@
+name: confidence-intervals
+channels:
+  - defaults
+dependencies:
+  - ca-certificates=2020.6.24=0
+  - certifi=2020.6.20=py37_0
+  - openssl=1.1.1g=he774522_1
+  - pip=20.2.2=py37_0
+  - python=3.7.7=h81c818b_4
+  - setuptools=49.6.0=py37_0
+  - sqlite=3.33.0=h2a8f88b_0
+  - vc=14.1=h0510ff6_4
+  - vs2015_runtime=14.16.27012=hf0eaf9b_3
+  - wheel=0.34.2=py37_0
+  - wincertstore=0.2=py37_0
+  - zlib=1.2.11=h62dcd97_4
