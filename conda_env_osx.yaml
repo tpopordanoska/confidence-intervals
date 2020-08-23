@@ -1,0 +1,37 @@
+name: eigenvectors
+channels:
+  - pytorch
+  - intel
+  - defaults
+dependencies:
+  - blas=1.0=mkl
+  - bzip2=1.0.8=h1de35cc_2
+  - certifi=2020.4.5.2=py37_0
+  - icc_rt=2020.2=intel_258
+  - intel-openmp=2020.2=intel_258
+  - intelpython=2020.2=0
+  - libcxx=4.0.1=hcfea43d_1
+  - libcxxabi=4.0.1=hcfea43d_1
+  - libffi=3.3=11
+  - mkl=2020.2=intel_258
+  - mkl-service=2.3.0=py37_4
+  - mkl_fft=1.1.0=py37h6ebd63d_3
+  - mkl_random=1.1.1=py37h6ebd63d_3
+  - ninja=1.9.0=py37h04f5b5a_0
+  - numpy=1.18.5=py37h6ebd63d_5
+  - numpy-base=1.18.5=py37_5
+  - openssl=1.1.1g=h1de35cc_1
+  - pip=20.1=py37_0
+  - python=3.7.7=h0a44026_13
+  - pytorch=1.6.0=py3.7_0
+  - setuptools=47.3.0=py37_0
+  - six=1.15.0=py37_0
+  - sqlite=3.32.1=h1de35cc_1
+  - tbb=2020.3=intel_258
+  - tbb4py=2020.3=py37_intel_0
+  - tcl=8.6.9=24
+  - tk=8.6.9=29
+  - wheel=0.34.2=py37_4
+  - xz=5.2.5=h1de35cc_0
+  - zlib=1.2.11.1=h1de35cc_1
+prefix: /Users/lext/conda/envs/eigenvectors
