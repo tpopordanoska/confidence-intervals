@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="confidence_intervals",
+    name="cieig",
     version="0.0.1",
     description="Distribution Independent Confidence Intervals for Eigenvectors",
     classifiers=[
@@ -9,5 +9,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=find_packages(where='src')
+    packages=find_packages()
 )
