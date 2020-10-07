@@ -33,16 +33,8 @@ def get_pmatrix_bounds(sigma, v_lower, v_upper, inv_lambdas_upper, inv_lambdas_l
         for j in range(p):
             for k in range(p):
                 updated_this_round = False
-                low_low = v_lower[i, k] * inv_lambdas_lower[k] * v_lower[j, k]
-                up_up = v_upper[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
-                low_up = v_lower[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
-                up_low = v_upper[i, k] * inv_lambdas_lower[k] * v_lower[j, k]
-
                 # CHECK IF ANY OF THE LOWER OR UPPER BOUNDS ARE ZERO!  HAVEN'T IMPLEMENTED THESE CASES
                 if (v_lower[i, k] == 0) + (v_upper[i, k] == 0) + (v_lower[j, k] == 0) + (v_upper[j, k] == 0):
-                    # lower_bound[i, j] += low_low
-                    # upper_bound[i, j] += up_up
-                    # updated_this_round = True
                     print("oh no, some value is zero")
                     print(v_lower[i, k])
                     print(v_upper[i, k])
@@ -50,38 +42,37 @@ def get_pmatrix_bounds(sigma, v_lower, v_upper, inv_lambdas_upper, inv_lambdas_l
                     print(v_upper[j, k])
                     continue
                     # assert False  # die here, fix code for these cases rather than return false result
-
                 # case 1a: i lower is positive; j lower is positive
                 if (v_lower[i, k] > 0) * (v_lower[j, k] > 0):
-                    lower_bound[i, j] += low_low
-                    upper_bound[i, j] += up_up
+                    lower_bound[i, j] += v_lower[i, k] * inv_lambdas_lower[k] * v_lower[j, k]
+                    upper_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
                     updated_this_round = True
                 # case 2a: i lower is negative, upper is positive; j lower is positive
                 if (v_lower[i, k] < 0) * (v_upper[i, k] > 0) * (v_lower[j, k] > 0):
-                    lower_bound[i, j] += low_up
-                    upper_bound[i, j] += up_up
+                    lower_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
+                    upper_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
                     updated_this_round = True
                 # case 3a: i upper is negative; j lower is positive
                 if (v_upper[i, k] < 0) * (v_lower[j, k] > 0):
-                    lower_bound[i, j] += low_up
-                    upper_bound[i, j] += up_low
+                    lower_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
+                    upper_bound[i, j] += v_upper[i, k] * inv_lambdas_lower[k] * v_lower[j, k]
                     updated_this_round = True
 
                 # case 1b: i lower and upper are positive; j lower is negative, upper is positive
                 if (v_lower[i, k] > 0) * (v_lower[j, k] < 0) * (v_upper[j, k] > 0):
-                    lower_bound[i, j] += up_low
-                    upper_bound[i, j] += up_up
+                    lower_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
+                    upper_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
                     updated_this_round = True
                 # case 2b: i lower is negative, upper is positive; j lower is negative, upper is positive
                 # this is the complicated one where there are a couple possibilities
                 if (v_lower[i, k] < 0) * (v_upper[i, k] > 0) * (v_lower[j, k] < 0) * (v_upper[j, k] > 0):
                     # Lower bound will be negative (unless i==j), and there are two possibilities for this
                     tmp = v_lower[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
-                    if tmp > up_low:
-                        tmp = up_low
+                    if tmp > v_upper[i, k] * inv_lambdas_upper[k] * v_lower[j, k]:
+                        tmp = v_upper[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
                     if i == j:
                         # in this case, the minimum is actually zero as we are on the diagonal
-                        if tmp < 0:  # this condition should always hold, but just being explicit
+                        if tmp < 0: # this condition should always hold, but just being explicit
                             tmp = 0
                     lower_bound[i, j] += tmp
                     # Upper bound will be positive, and there are two possibilities for this
@@ -91,25 +82,25 @@ def get_pmatrix_bounds(sigma, v_lower, v_upper, inv_lambdas_upper, inv_lambdas_l
                     upper_bound[i, j] += tmp
                     updated_this_round = True
                 # case 3b: i lower and upper are negative; j lower is negative, upper is positive
-                if (v_upper[i, k] < 0) * (v_lower[j, k] < 0) * (v_upper[j, k] > 0):
-                    lower_bound[i, j] += low_up
-                    upper_bound[i, j] += low_low
+                if (v_upper[i, k] < 0) * (v_lower[j, k]<0) * (v_upper[j, k] > 0):
+                    lower_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_upper[j, k]
+                    upper_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
                     updated_this_round = True
 
                 # case 1c: i lower and upper are positive; j lower and upper are negative
-                if (v_lower[i, k] > 0) * (v_upper[j, k] < 0):
-                    lower_bound[i, j] += up_low
-                    upper_bound[i, j] += low_up
+                if (v_lower[i, k]>0) * (v_upper[j, k]<0):
+                    lower_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
+                    upper_bound[i, j] += v_lower[i, k] * inv_lambdas_lower[k] * v_upper[j, k]
                     updated_this_round = True
                 # case 2c: i lower is negative, upper is positive; j lower and upper are negative
                 if (v_lower[i, k] < 0) * (v_upper[i, k] > 0) * (v_upper[j, k] < 0):
-                    lower_bound[i, j] += up_low
-                    upper_bound[i, j] += low_low
+                    lower_bound[i, j] += v_upper[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
+                    upper_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
                     updated_this_round = True
                 # case 3c: i lower and upper are negative; j lower and upper are negative
                 if (v_upper[i, k] < 0) * (v_upper[j, k] < 0):
-                    lower_bound[i, j] += up_up
-                    upper_bound[i, j] += low_low
+                    lower_bound[i, j] += v_upper[i, k] * inv_lambdas_lower[k] * v_upper[j, k]
+                    upper_bound[i, j] += v_lower[i, k] * inv_lambdas_upper[k] * v_lower[j, k]
                     updated_this_round = True
 
                 if not updated_this_round:
