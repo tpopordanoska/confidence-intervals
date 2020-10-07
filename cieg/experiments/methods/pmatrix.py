@@ -11,10 +11,6 @@ def pmatrix_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper,
                                                   inv_eigvals_lower,
                                                   p)
 
-    # prec_emp = torch.inverse(sigma)
-    # print_pmatrix_bounds(lower_bound, upper_bound, prec_emp)
-    # check_pmatrix_bounds(lower_bound, upper_bound, prec_emp)
-
     non_zero_precision = (lower_bound > 0) + (upper_bound < 0) > 0
 
     return lower_bound, upper_bound, non_zero_precision
@@ -132,6 +128,7 @@ def get_pmatrix_bounds(sigma, v_lower, v_upper, inv_lambdas_upper, inv_lambdas_l
 
 
 def print_pmatrix_bounds(lower, upper, prec_emp):
+    print("Verifying bounds")
     print(f"Prec. matrix lower: {lower}")
     print(f"Prec. matrix:       {prec_emp}")
     print(f"Prec. matrix upper: {upper}")
@@ -139,6 +136,9 @@ def print_pmatrix_bounds(lower, upper, prec_emp):
 
 def check_pmatrix_bounds(lower, upper, prec_emp):
     print("Verifying bounds")
+    assert torch.all(lower.lt(prec_emp))
+    assert torch.all(upper.gt(prec_emp))
+
     # upper bounds and lower bounds should bound the empirical precision matrix
     assert torch.min(upper - prec_emp) >= 0
     assert torch.min(prec_emp - lower) >= 0

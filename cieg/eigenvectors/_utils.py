@@ -116,7 +116,7 @@ def print_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_uppe
     print('\n')
 
 
-def check_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig):
+def check_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig):
     print("Verifying bounds")
     assert torch.all(eigvals_lower.lt(eig.eigenvalues))
     assert torch.all(eigvals_upper.gt(eig.eigenvalues))

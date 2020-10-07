@@ -1,13 +1,10 @@
-import os
-from datetime import datetime as dt
-
-import matplotlib.pyplot as plt
 from scipy.stats import norm as normal_dist
 from tqdm import tqdm
 
 from cieg.eigenvectors import *
 from cieg.experiments.methods import *
 from cieg.experiments.utils import preprocess
+from cieg.utils import *
 from cieg.utils.covariance import cov
 
 n_simulation_rounds = 100  # Number of simulations in total
@@ -120,25 +117,6 @@ def assess_our(data, alphas, idx_zeros):
             fpr = 0
         fprs.append(fpr)
     return fprs
-
-
-def create_folders():
-    # Create a folder 'results'
-    path_results = os.path.join(os.getcwd(), "results")
-    if not os.path.exists(path_results):
-        try:
-            os.mkdir(path_results)
-        except OSError:
-            print(f"Creation of the directory {path_results} failed")
-
-    # Create a separate folder for each time running the experiment
-    path = os.path.join(path_results, dt.now().strftime('%Y-%m-%d_%H-%M-%S.%f'))
-    try:
-        os.mkdir(path)
-    except OSError:
-        print("Creation of the directory %s failed" % path)
-
-    return path
 
 
 def plot_results(folder_name=None):
