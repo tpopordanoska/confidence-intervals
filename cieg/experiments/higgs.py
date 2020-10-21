@@ -7,6 +7,7 @@ from .experiment import Experiment
 class Higgs(Experiment):
 
     def __init__(self, **kwargs):
+        usecols = kwargs.pop('usecols')
         url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz"
         columns = ['class', 'lepton pT', 'lepton eta', 'lepton phi', 'missing energy magnitude', 'missing energy phi',
                    'jet 1 pt', 'jet 1 eta', 'jet 1 phi', 'jet 1 b-tag', 'jet 2 pt', 'jet 2 eta', 'jet 2 phi',
@@ -19,7 +20,7 @@ class Higgs(Experiment):
                               delimiter=',',
                               header=None,
                               names=columns,
-                              usecols=kwargs.pop('usecols'))
+                              usecols=usecols)
 
         X = torch.transpose(torch.tensor(dataset.values).float(), 0, 1)
-        super().__init__(X, kwargs.pop("name"))
+        super().__init__(X, kwargs.pop("name"), column_names=usecols)

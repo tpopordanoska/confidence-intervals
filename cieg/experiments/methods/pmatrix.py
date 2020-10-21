@@ -1,3 +1,6 @@
+import os
+
+import numpy as np
 import torch
 
 
@@ -133,3 +136,39 @@ def check_pmatrix_bounds(lower, upper, prec_emp):
     # upper bounds and lower bounds should bound the empirical precision matrix
     assert torch.min(upper - prec_emp) >= 0
     assert torch.min(prec_emp - lower) >= 0
+
+
+def save_pmatrix_bounds(lower, upper, prec_emp, path, method):
+    np.save(os.path.join(path, f"pm_lower_{method}.npy"), lower)
+    np.save(os.path.join(path, f"pm_upper_{method}.npy"), upper)
+    np.save(os.path.join(path, f"pm_emp_{method}.npy"), prec_emp)
+
+
+def save_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig, path, method):
+    np.save(os.path.join(path, f"eigvals_lower_{method}.npy"), eigvals_lower)
+    np.save(os.path.join(path, f"eigvals_upper_{method}.npy"), eigvals_upper)
+    np.save(os.path.join(path, f"eigvals_emp_{method}.npy"), eig.eigenvalues)
+
+    np.save(os.path.join(path, f"eigvects_lower_{method}.npy"), eigvects_lower)
+    np.save(os.path.join(path, f"eigvects_upper_{method}.npy"), eigvects_upper)
+    np.save(os.path.join(path, f"eigvects_emp_{method}.npy"), eig.eigenvectors)
+
+
+def load_pmatrix_bounds(path, method):
+    lower = np.load(os.path.join(path, f"pm_lower_{method}.npy"))
+    upper = np.load(os.path.join(path, f"pm_upper_{method}.npy"))
+    emp = np.load(os.path.join(path, f"pm_emp_{method}.npy"))
+
+    return lower, upper, emp
+
+
+def load_eig_bounds(path, method):
+    eigvals_lower = np.load(os.path.join(path, f"eigvals_lower_{method}.npy"))
+    eigvals_upper = np.load(os.path.join(path, f"eigvals_upper_{method}.npy"))
+    eigvals_emp = np.load(os.path.join(path, f"eigvals_emp_{method}.npy"))
+
+    eigvects_lower = np.load(os.path.join(path, f"eigvects_lower_{method}.npy"))
+    eigvects_upper = np.load(os.path.join(path, f"eigvects_upper_{method}.npy"))
+    eigvects_emp = np.load(os.path.join(path, f"eigvects_emp_{method}.npy"))
+
+    return eigvals_lower, eigvals_upper, eigvals_emp, eigvects_lower, eigvects_upper, eigvects_emp

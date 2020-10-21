@@ -6,16 +6,17 @@ warnings.filterwarnings(
     "ignore", category=UserWarning
 )
 
-census_columns = ["iClass", "dIncome1", "iEnglish", "dHours"]
+oa = ['WOMAC', 'OSTM', 'OSFM']
 higgs_first = ['m_jj', 'm_jjj', 'm_lv', 'm_jlv']
 higgs_second = ['m_bb', 'm_wbb', 'm_wwbb']
-osteoarthritis = ['Side', 'WOMAC', 'OSTM']  # OSTM OSFM
+higgs_third = ['m_jj', 'm_jjj', 'm_lv', 'm_jlv', 'm_bb', 'm_wbb', 'm_wwbb']
 
 
 EXPERIMENTS = {
-    'higgs_first': Higgs(usecols=higgs_first, name='Higgs first'),
-    'higgs_second': Higgs(usecols=higgs_second, name='Higgs second'),
-    'osteoarthritis': Osteoarthritis(usecols=osteoarthritis)
+    'oa': Osteoarthritis(usecols=oa),
+    'higgs_first': Higgs(usecols=higgs_first, name='higgs_first'),
+    'higgs_second': Higgs(usecols=higgs_second, name='higgs_second'),
+    'higgs_third': Higgs(usecols=higgs_third, name='higgs_third')
 }
 
 

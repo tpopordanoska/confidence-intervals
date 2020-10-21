@@ -1,44 +1,104 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
-import os
+
+from cieg.experiments.methods.pmatrix import *
+
+FONTSIZE_BIG = 16
+FONTSIZE_MEDIUM = 12
+FONTSIZE_SMALL = 10
 
 
-def plot_and_save_bounds(lower, upper, empirical, title, path):
-    fig, ax = plt.subplots(1, 3, figsize=(15, 7))
-    plt.rcParams.update({'font.size': 16})
-    # fig.suptitle(title)
+def set_fontsize(experiment):
+    if experiment.name == 'higgs_third':
+        plt.rcParams.update({'font.size': FONTSIZE_SMALL})
+        return FONTSIZE_SMALL
 
-    plot_matrix(lower, ax[0], 'Lower bound')
-    plot_matrix(empirical, ax[1], 'Empirical value', False)
-    plot_matrix(upper, ax[2], "Upper bound")
-
-    plt.savefig(os.path.join(path, f'{title}.pdf'), bbox_inches='tight')
-    plt.show()
+    plt.rcParams.update({'font.size': FONTSIZE_BIG})
+    return FONTSIZE_BIG
 
 
-def plot_matrix(matrix, ax, title, is_bound=True):
+def plot_pmatrix_bounds(path, method, experiment):
+    set_fontsize(experiment)
+
+    lower, upper, empirical = load_pmatrix_bounds(path, method)
+
+    plot_and_save_pmatrix(lower, path, f"lb_pmatrix_{experiment.name}_{method}.pdf", experiment)
+    plot_and_save_pmatrix(empirical, path, f'emp_pmatrix_{experiment.name}_{method}.pdf', experiment, False)
+    plot_and_save_pmatrix(upper, path, f"ub_pmatrix_{experiment.name}_{method}.pdf", experiment)
+
+
+def plot_eig_bounds(path, method, experiment):
+    set_fontsize(experiment)
+
+    eigvals_lower, eigvals_upper, eigvals_emp, eigvects_lower, eigvects_upper, eigvects_emp = load_eig_bounds(path, method)
+    plot_and_save_eigvals(eigvals_lower, path, f"eigvals_lower_{experiment.name}_{method}.pdf", experiment)
+    plot_and_save_eigvals(eigvals_emp, path, f'eigvals_emp_{experiment.name}_{method}.pdf', experiment, False)
+    plot_and_save_eigvals(eigvals_upper, path, f"eigvals_upper_{experiment.name}_{method}.pdf", experiment)
+
+    plot_and_save_eigvects(eigvects_lower, path, f"eigvects_lower_{experiment.name}_{method}.pdf", experiment)
+    plot_and_save_eigvects(eigvects_emp, path, f'eigvects_emp_{experiment.name}_{method}.pdf', experiment, False)
+    plot_and_save_eigvects(eigvects_upper, path, f"eigvects_upper_{experiment.name}_{method}.pdf", experiment)
+
+
+def plot_and_save_eigvals(array, path, plot_name, experiment, is_bound=True):
+    FONTSIZE = set_fontsize(experiment)
+
+    fig, ax = plt.subplots(1, 1, figsize=(3, 2))
     if is_bound:
         cmap = mpl.cm.Blues(np.linspace(0, 1, 20))
     else:
         cmap = mpl.cm.Reds(np.linspace(0, 1, 20))
     cmap = mpl.colors.ListedColormap(cmap[0:10, :-1])
-    ax.matshow(matrix, cmap=cmap) # plt.get_cmap('Blues'))
-    ax.set_title(title)
+    data = np.reshape(array, (1, len(array)))
+    ax.imshow(data, cmap=cmap)
+    ax.set_xticklabels("")
+    ax.set_yticklabels("")
+
+    for i in range(len(array)):
+        c = np.around(array[i].item(), decimals=2)
+        ax.text(i, 0, str(c), va='center', ha='center', fontsize=FONTSIZE)
+
+    plt.savefig(os.path.join(path, plot_name), bbox_inches='tight')
+    plt.show()
+
+
+def plot_and_save_eigvects(matrix, path, plot_name, experiment, is_bound=True):
+    FONTSIZE = set_fontsize(experiment)
+
+    fig, ax = plt.subplots(1, 1, figsize=(7, 4))
+    if is_bound:
+        cmap = mpl.cm.Blues(np.linspace(0, 1, 20))
+    else:
+        cmap = mpl.cm.Reds(np.linspace(0, 1, 20))
+    cmap = mpl.colors.ListedColormap(cmap[0:10, :-1])
+    ax.matshow(matrix, cmap=cmap)  # plt.get_cmap('Blues'))
+    ax.set_xticklabels("")
+    ax.set_yticklabels("")
     for i in range(len(matrix)):
         for j in range(len(matrix)):
-            c = np.around(matrix[j, i].item(), decimals=3)
-            ax.text(i, j, str(c), va='center', ha='center', fontsize=24)
+            c = np.around(matrix[j, i].item(), decimals=2)
+            ax.text(i, j, str(c), va='center', ha='center', fontsize=FONTSIZE)
+
+    plt.savefig(os.path.join(path, plot_name), bbox_inches='tight')
+    plt.show()
 
 
-def plot_bounds_comparison(lower1, upper1, lower2, upper2, emp, title):
-    fig, ax = plt.subplots(2, 3, figsize=(17, 14))
-    fig.suptitle(title, size=18)
-    plot_matrix(lower1, ax[0, 0], 'Lower')
-    plot_matrix(emp, ax[0, 1], 'Empirical')
-    plot_matrix(upper1, ax[0, 2], "Upper")
-    plot_matrix(lower2, ax[1, 0], 'Lower')
-    plot_matrix(emp, ax[1, 1], 'Empirical')
-    plot_matrix(upper2, ax[1, 2], "Upper")
+def plot_and_save_pmatrix(matrix, path, plot_name, experiment, is_bound=True):
+    FONTSIZE = set_fontsize(experiment)
 
+    fig, ax = plt.subplots(1, 1, figsize=(7, 4))
+    if is_bound:
+        cmap = mpl.cm.Blues(np.linspace(0, 1, 20))
+    else:
+        cmap = mpl.cm.Reds(np.linspace(0, 1, 20))
+    cmap = mpl.colors.ListedColormap(cmap[0:10, :-1])
+    ax.matshow(matrix, cmap=cmap)  # plt.get_cmap('Blues'))
+    ax.set_xticklabels([''] + experiment.column_names)
+    ax.set_yticklabels([''] + experiment.column_names)
+    for i in range(len(matrix)):
+        for j in range(len(matrix)):
+            c = np.around(matrix[j, i].item(), decimals=2)
+            ax.text(i, j, str(c), va='center', ha='center', fontsize=FONTSIZE)
+
+    plt.savefig(os.path.join(path, plot_name), bbox_inches='tight')
     plt.show()

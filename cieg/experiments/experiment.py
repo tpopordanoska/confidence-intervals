@@ -9,9 +9,10 @@ from cieg.utils.draw import *
 
 
 class Experiment:
-    def __init__(self, X, name):
+    def __init__(self, X, name, **kwargs):
         self.X = X
         self.name = name
+        self.column_names = kwargs.pop("column_names")
 
     @staticmethod
     def load_dataset_if_not_exists(path, url):
@@ -37,17 +38,16 @@ class Experiment:
         pmatrix_lower, pmatrix_upper = resample_pmatrix(X_pd, n_iterations=100, rng=check_random_state(0))
         print_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec)
         check_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec)
-        plot_and_save_bounds(pmatrix_lower,
-                             pmatrix_upper,
-                             emp_prec,
-                             f"Bounds on the precision matrix using resampling on {self.name}",
-                             path)
+        save_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec, path, 'resampling')
+        plot_pmatrix_bounds(path, 'resampling', self)
 
         print("----------- OUR METHOD -----------")
         # Bounds on eigendecomposition
         eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper = cieg(X, sigma, eig)
         print_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig)
         check_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig)
+        save_eig_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, eig, path, 'our')
+        plot_eig_bounds(path, 'our', self)
 
         # Bounds on precision matrix
         pmatrix_lower, pmatrix_upper, _ = pmatrix_bounds(eigvals_lower,
@@ -57,8 +57,6 @@ class Experiment:
                                                          sigma, eig)
         print_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec)
         check_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec)
-        plot_and_save_bounds(pmatrix_lower,
-                             pmatrix_upper,
-                             emp_prec,
-                             f"Bounds on the precision matrix using our method on {self.name}",
-                             path)
+        save_pmatrix_bounds(pmatrix_lower, pmatrix_upper, emp_prec, path, 'our')
+        plot_pmatrix_bounds(path, 'our', self)
+
