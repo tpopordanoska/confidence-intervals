@@ -85,6 +85,18 @@ def get_eigenvector_bounds(eps, eig, matrix):
     v_upper = torch.transpose(torch.sqrt(prod_mj_upper / torch.ger(prod_lower, torch.ones_like(prod_lower))), 0, 1)\
         .type(torch.DoubleTensor)
 
+    # enforce trivial bounds due to orthonormality
+    v_upper = torch.clamp(v_upper, min=0.0, max=1.0)
+    # We can compute tighter bounds due to L2 norm of vectors equal to one.
+    l2_upper = v_lower * v_lower
+    l2_upper = torch.sqrt(1 - (torch.ones_like(l2_upper).matmul(l2_upper) - l2_upper))
+    v_upper = torch.min(v_upper, l2_upper)
+
+    # We can also computer tighter lower bounds due to L2 norm of vectors equal to one.
+    l2_lower = v_upper * v_upper
+    l2_lower = torch.sqrt(torch.max(torch.zeros_like(l2_lower), 1.0 - (torch.ones_like(l2_lower).matmul(l2_lower) - l2_lower)))
+    v_lower = torch.max(v_lower, l2_lower)
+
     # now get the signed version of the upper and lower bounds on V
     #  cases:
     #  1) Vhat positive, lbind==1: don't change the upper and lower bounds
