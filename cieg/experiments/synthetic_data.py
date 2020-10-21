@@ -2,7 +2,6 @@ from scipy.stats import norm as normal_dist
 from tqdm import tqdm
 
 from cieg.eigenvectors import *
-from cieg.experiments.methods import *
 from cieg.experiments.utils import preprocess
 from cieg.utils import *
 from cieg.utils.covariance import cov
@@ -12,7 +11,7 @@ N = 500000  # Number of samples
 d = 5  # Number of dimensions
 eps = 1e-9  # Threshold for entries of PM to be zero
 n_alphas = 100  # How many alphas to check
-alphas = np.linspace(0, 0.999, n_alphas)
+alphas = np.linspace(0.01, 1, n_alphas)
 np.random.seed(42)
 
 
@@ -31,12 +30,15 @@ def run_and_save_results():
     while simulation_round < n_simulation_rounds:
         # Generating a random adjacency matrix
         # Must be symmetric
-        threshold = np.random.choice([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+        affinity_multiplier = 10
+        threshold = np.random.rand()
         adj = 1. * (np.random.rand(d, d) > threshold)
         adj *= (1 - np.eye(d))
         adj = np.tril(adj) + np.triu(adj.T, 1)
-        # Converting adjacency matrix to precision matrix by making it PD
-        S, V = np.linalg.eigh(adj)
+        # Converting adjacency matrix into an unnormalized affinity matrix
+        affinity = adj * affinity_multiplier * (1 + np.random.rand(d, d))
+        # Making the affinity matrix PD (=precision matrix)
+        S, V = np.linalg.eigh(affinity)
         S = np.maximum(np.diag(S), np.eye(adj.shape[0]) + abs(np.random.rand()))
         precision_matrix = V @ S @ V.T
         idx_zeros = (np.abs(precision_matrix) <= eps).ravel()
@@ -108,7 +110,7 @@ def assess_our(data, alphas, idx_zeros):
         eigvals_lower, eigvals_upper = get_eigenvalue_bounds(eig.eigenvalues, eps)
         eigvects_lower, eigvects_upper = get_eigenvector_bounds(eps, eig, sigma)
 
-        _, _, pred_non_zero = pmatrix_bounds(eigvals_lower, eigvals_upper,  eigvects_lower, eigvects_upper, sigma, eig)
+        _, _, pred_non_zero = pmatrix_bounds(eigvals_lower, eigvals_upper, eigvects_lower, eigvects_upper, sigma, eig)
         pred_non_zero = pred_non_zero.data.numpy().ravel()
 
         if idx_zeros.sum() > 0:
@@ -164,7 +166,6 @@ def create_and_save_plot(alphas, mean_f, std_f, mean_our, std_our, title, path):
     plt.plot(alphas, mean_our, 'b', label='Our method')
     plt.fill_between(alphas, mean_our - std_our, mean_our + std_our, color='b', alpha=0.25, linewidth=0)
     plt.plot([0, 1], [0, 1], color='black', linestyle='--')
-    plt.title(title)
     plt.xlabel('Significance')
     plt.ylabel('False Positive Rate')
     plt.legend()
